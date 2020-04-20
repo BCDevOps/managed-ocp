@@ -1,2 +1,2 @@
-code --install-extension vscode-terraform
-code --install-extension HCL
+code --install-extension mauve.terraform
+code --install-extension wholroyd.HCL
