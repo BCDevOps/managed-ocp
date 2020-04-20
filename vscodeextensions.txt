@@ -1,0 +1,2 @@
+code --install-extension vscode-terraform
+code --install-extension HCL
