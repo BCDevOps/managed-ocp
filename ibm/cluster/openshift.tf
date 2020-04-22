@@ -1,6 +1,12 @@
+provider "ibm" {
+  ibmcloud_api_key      = var.ibmcloud_api_key
+  iaas_classic_username = var.iaas_classic_username
+  iaas_classic_api_key  = var.iaas_classic_api_key
+}
+
 resource "ibm_container_cluster" "cluster" {
   name              = "bcgov-ocp"
-  datacenter        = "wdc10"
+  datacenter        = "wdc04"
   default_pool_size = 3
   machine_type      = "b3c.4x16"
   hardware          = "shared"
