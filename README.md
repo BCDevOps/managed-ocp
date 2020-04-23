@@ -23,5 +23,5 @@ For example, to use IBM, run
 ```bash
 #!/bin/bash
 cd platforms/ibm;
-.\prerequisites.sh;
+./prerequisites.sh;
 ```
