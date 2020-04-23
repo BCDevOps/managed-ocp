@@ -33,9 +33,8 @@ installIbmTerraformPluginsIfNeeded(){
             exit 1;
         fi
     fi
-
-    TARGET_IBM_CLOUD_TF_PLUGIN_VERSION=1.4.0;
-
+    rm -f $TERRAFORM_INSTALLER*;
+    TARGET_IBM_CLOUD_TF_PLUGIN_VERSION="1.4.0";
     IBM_CLOUD_TF_ALREADY_INSTALLED=$(find $TERRAFORM_PLUGIN_DIR -maxdepth 1 -name "*$TARGET_IBM_CLOUD_TF_PLUGIN_VERSION*" -print);
     if [[ -z "$IBM_CLOUD_TF_ALREADY_INSTALLED" ]]; then
         wget https://github.com/IBM-Cloud/terraform-provider-ibm/releases/download/v$TARGET_IBM_CLOUD_TF_PLUGIN_VERSION/$TERRAFORM_INSTALLER;
