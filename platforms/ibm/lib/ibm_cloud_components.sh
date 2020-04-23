@@ -55,7 +55,7 @@ installIbmTerraformPluginsIfNeeded(){
     fi
 }
 
-installIbmOpenshiftCliPluginsIfNeeded(){
+installIbmCloudCliIfNeeded(){
     # install IBM specific openshift plugins
     IBM_CLOUD_CLI_VERSION=$(findTagValueInCommandOutput "ibmcloud version" "ibmcloud -v" "true");
     if [[ -z "$IBM_CLOUD_CLI_VERSION" ]]; then
