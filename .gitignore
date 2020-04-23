@@ -38,3 +38,4 @@ Thumbs.db
 
 # Terraform Settings Files
 /platforms/ibm/cluster/terraform.tfvars
+/platforms/ibm/cluster/kubectl
