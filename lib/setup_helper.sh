@@ -1,4 +1,5 @@
-source ./shell_helper.sh;
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+source "$DIR/shell_helper.sh";
 
 findTagValueInFile(){
     local _tag=$1;
@@ -151,7 +152,7 @@ installTerraformIfNeeded(){
   TERRAFORM_TARGET_VERSION=$(findTagValueInFile "$TERRAFORM_TAG" ".tool-versions");
 
   if [[ ! -z "$TERRAFORM_TARGET_VERSION" ]]; then
-    TERRAFORM_CURRENT_VERSION=$(findTagValueInCommandOutput "Usage: terraform" "terraform");
+    TERRAFORM_CURRENT_VERSION=$(findTagValueInCommandOutput "terraform" "terraform -v");
     if [[ "$TERRAFORM_CURRENT_VERSION" != "$TERRAFORM_TARGET_VERSION" ]]; then
       echo "handling terraform version '${TERRAFORM_TARGET_VERSION}'";
       asdf install terraform $TERRAFORM_TARGET_VERSION;

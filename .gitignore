@@ -37,4 +37,4 @@ output.txt
 Thumbs.db
 
 # Terraform Settings Files
-/ibm/cluster/terraform.tfvars
+/platforms/ibm/cluster/terraform.tfvars

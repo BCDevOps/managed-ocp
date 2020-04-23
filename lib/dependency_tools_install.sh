@@ -1,4 +1,5 @@
-source ./dependency_tools_helper.sh;
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+source "$DIR/dependency_tools_helper.sh";
 
 PACKAGE_MANAGER="";
 IDLIKE="$(grep ID_LIKE /etc/os-release | awk -F '=' '{print $2}')"
@@ -84,7 +85,7 @@ else
     exit 1;
 fi
 
-source ../vscodeextensions.txt;
+source "$DIR/vscodeextensions.txt";
 
 envProfileSettings "${PROFILE_FILE}";
 envProfileSettings "${RC_FILE}";

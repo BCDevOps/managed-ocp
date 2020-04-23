@@ -1,4 +1,5 @@
-source ./shell_helper.sh;
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+source "$DIR/shell_helper.sh";
 
 asdfProfileWriterBrew(){
     local _profile_file=$1;
