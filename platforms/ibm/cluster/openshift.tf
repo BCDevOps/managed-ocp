@@ -6,7 +6,7 @@ provider "ibm" {
 
 resource "ibm_container_cluster" "cluster" {
   name              = "bcgov-ocp"
-  datacenter        = "wdc04"
+  datacenter        = "mon01"
   default_pool_size = 3
   machine_type      = "b3c.4x16"
   hardware          = "shared"
