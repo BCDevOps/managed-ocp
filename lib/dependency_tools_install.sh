@@ -38,7 +38,7 @@ if [[ "$PACKAGE_MANAGER" == "brew" ]]; then
     brew update;
     brew install coreutils automake autoconf openssl \
     libyaml readline libxslt libtool unixodbc \
-    unzip curl \
+    unzip curl wget \
     git make;
     brew cask install visual-studio-code;
 elif [[ "$PACKAGE_MANAGER" == "choco" ]]; then
@@ -51,7 +51,7 @@ elif [[ "$PACKAGE_MANAGER" == "yum" ]]; then
     yum check-update;
     sudo yum -y install code;
     sudo yum -y install epel-release;
-    sudo yum -y install coreutils automake autoconf openssl libtool unixodbc make jq unzip curl git;
+    sudo yum -y install coreutils automake autoconf openssl libtool unixodbc make jq unzip curl wget git;
 elif [[ "$PACKAGE_MANAGER" == "apt" ]]; then
     sudo apt-get update && sudo apt-get -y upgrade;
      # This here is for vscode
@@ -63,7 +63,7 @@ elif [[ "$PACKAGE_MANAGER" == "apt" ]]; then
     sudo install -o root -g root -m 644 packages.microsoft.gpg /usr/share/keyrings/;
     sudo apt-get -y install apt-transport-https;
     sudo apt-get update;
-    sudo apt-get -y install build-essential coreutils automake autoconf openssl libtool unixodbc unzip curl git make jq;
+    sudo apt-get -y install build-essential coreutils automake autoconf openssl libtool unixodbc unzip curl wget git make jq;
 else
     echo -e \\n"Packages not installed.\\n"\\n
     exit 1;
