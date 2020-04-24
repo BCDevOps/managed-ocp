@@ -7,10 +7,10 @@ asdfProfileWriterBrew(){
         touch "$_profile_file";
     fi
     if ! grep "/asdf.sh" "$_profile_file"; then
-        echo "\n. $(brew --prefix asdf)/asdf.sh" >> "$_profile_file";
+        echo "\\n. $(brew --prefix asdf)/asdf.sh" >> "$_profile_file";
     fi
     if ! grep "/asdf.bash" "$_profile_file"; then
-        echo "\n. $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash" >> "$_profile_file";
+        echo "\\n. $(brew --prefix asdf)/etc/bash_completion.d/asdf.bash" >> "$_profile_file";
     fi
 }
 
@@ -20,10 +20,10 @@ asdfProfileWriterNonBrew(){
         touch "$_profile_file";
     fi
     if ! grep "/asdf.sh" "$_profile_file"; then
-        echo -e '\n. $HOME/.asdf/asdf.sh' >> "$_profile_file";
+        echo -e '\\n. $HOME/.asdf/asdf.sh' >> "$_profile_file";
     fi
     if ! grep "/asdf.bash" "$_profile_file"; then
-        echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> "$_profile_file";
+        echo -e '\\n. $HOME/.asdf/completions/asdf.bash' >> "$_profile_file";
     fi
     source "$_profile_file";
 }
