@@ -36,6 +36,7 @@ output.txt
 .DS_Store
 Thumbs.db
 
-# Terraform Settings Files
+# Settings Files
+/platforms/ibm/IbmCloudApi.json
 /platforms/ibm/cluster/terraform.tfvars
 /platforms/ibm/cluster/kubectl

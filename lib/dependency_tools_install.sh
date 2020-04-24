@@ -63,7 +63,7 @@ elif [[ "$PACKAGE_MANAGER" == "apt" ]]; then
     sudo install -o root -g root -m 644 packages.microsoft.gpg /usr/share/keyrings/;
     sudo apt-get -y install apt-transport-https;
     sudo apt-get update;
-    sudo apt-get -y install build-essential coreutils automake autoconf openssl libtool unixodbc unzip curl wget git make jq;
+    sudo apt-get -y install build-essential coreutils automake autoconf openssl libtool unixodbc unzip curl git make jq;
 else
     echo -e \\n"Packages not installed.\\n"\\n
     exit 1;
