@@ -2,6 +2,8 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
 source "$DIR/../../../lib/setup_helper.sh";
 
+IBM_API_KEY_NAME="IbmCloudApi";
+
 installIbmTerraformPluginsIfNeeded(){
     # install IBM specific terraform plugins
     TERRAFORM_PLUGIN_DIR=$HOME/.terraform.d/plugins;
@@ -59,5 +61,13 @@ installIbmCloudCliIfNeeded(){
     IBM_CLOUD_CLI_VERSION=$(findTagValueInCommandOutput "ibmcloud version" "ibmcloud -v" "true");
     if [[ -z "$IBM_CLOUD_CLI_VERSION" ]]; then
         curl -sL https://ibm.biz/idt-installer | bash;
+    fi
+}
+
+createIbmApiKeyIfNeeded(){
+    if [[ ! -e "$IBM_API_KEY_NAME.json" ]]; then
+        echo "\\nYou are about to log in to IBM Cloud.\\nIf you do not have an IBM Cloud account yet, you will need to acquire one for the next step.\\n[CTRL]-[C] to exit."
+        ibmcloud login;
+        ibmcloud iam api-key-create IbmCloudApi -d "API key for passwordless application access" --file IbmCloudApi.json
     fi
 }

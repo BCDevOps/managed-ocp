@@ -8,6 +8,7 @@ checkDependencies;
 installIbmCloudCliIfNeeded;
 installTerraformIfNeeded;
 installIbmTerraformPluginsIfNeeded;
+createIbmApiKeyIfNeeded;
 
 source "${PROFILE_FILE}";
 source "${RC_FILE}";
