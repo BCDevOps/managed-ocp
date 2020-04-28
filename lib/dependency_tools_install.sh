@@ -38,13 +38,13 @@ if [[ "$PACKAGE_MANAGER" == "brew" ]]; then
     brew update;
     brew install coreutils automake autoconf openssl \
     libyaml readline libxslt libtool unixodbc \
-    unzip curl wget \
+    unzip curl wget jq \
     git make;
     brew cask install visual-studio-code;
 elif [[ "$PACKAGE_MANAGER" == "choco" ]]; then
     sudo PowerShell -NoProfile -ExecutionPolicy remotesigned -Command ". 'install_choco.ps1;";
     choco upgrade chocolatey;
-    choco install git vscode make -y;
+    choco install git vscode make jq -y;
 elif [[ "$PACKAGE_MANAGER" == "yum" ]]; then
     sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc;
     sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo';
