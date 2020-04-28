@@ -9,6 +9,7 @@ installIbmCloudCliIfNeeded;
 installTerraformIfNeeded;
 installIbmTerraformPluginsIfNeeded;
 createIbmApiKeyIfNeeded;
+createIbmTerraformSettingsIfNeeded;
 
 source "${PROFILE_FILE}";
 source "${RC_FILE}";

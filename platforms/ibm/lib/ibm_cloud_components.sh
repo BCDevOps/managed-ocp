@@ -71,3 +71,24 @@ createIbmApiKeyIfNeeded(){
         ibmcloud iam api-key-create IbmCloudApi -d "API key for passwordless application access" --file IbmCloudApi.json
     fi
 }
+
+createIbmTerraformSettingsIfNeeded(){
+    local _current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+    local _cluster_subpath="../cluster";
+    local _tfvars_filename="ibm.tfvars";
+    local _tfvars_full_path="$_current_dir/$_cluster_subpath/$_tfvars_filename";
+
+    if [[ ! -e "$_tfvars_full_path" ]]; then
+        cd $_current_dir/$_cluster_subpath;
+        terraform init;
+        local _tfvars_template_filename="ibm.tfvars.template";
+        local _tfvars_template_full_path="$_current_dir/$_tfvars_template_filename";
+        cp "$_tfvars_template_full_path" "$_tfvars_full_path";
+        local _ibmcloud_settings_filename="IbmCloudApi.json";
+        local _api_key=`jq -r '.id' $_current_dir/../$_ibmcloud_settings_filename`;
+        local _tfvars_contents=$(<$_tfvars_full_path);
+        local _api_key_placeholder="<ibmcloud_api_key>";
+        local _tfvars_contents=${_tfvars_contents/$_api_key_placeholder/$_api_key};
+        echo "$_tfvars_contents" > $_tfvars_full_path;
+    fi
+}
