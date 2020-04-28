@@ -38,5 +38,6 @@ Thumbs.db
 
 # Settings Files
 /platforms/ibm/IbmCloudApi.json
+/platforms/ibm/cluster/.*
 /platforms/ibm/cluster/*.tfvars
 /platforms/ibm/cluster/kubectl

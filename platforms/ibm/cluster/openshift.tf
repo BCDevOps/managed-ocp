@@ -14,6 +14,6 @@ resource "ibm_container_cluster" "cluster" {
   public_vlan_id    = "<public_vlan_ID>"
   private_vlan_id   = "<private_vlane_ID>"
   lifecycle {
-    ignore_changes = ["kube_version"]
+    ignore_changes = [kube_version]
   }
 }
