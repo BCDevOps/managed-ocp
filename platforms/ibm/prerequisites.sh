@@ -10,6 +10,7 @@ installTerraformIfNeeded;
 installIbmTerraformPluginsIfNeeded;
 createIbmApiKeyIfNeeded;
 createIbmTerraformSettingsIfNeeded;
+initializeOpenshiftTfVlansIfNeeded;
 
 source "${PROFILE_FILE}";
 source "${RC_FILE}";

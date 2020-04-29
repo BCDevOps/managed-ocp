@@ -12,7 +12,7 @@ resource "ibm_container_cluster" "cluster" {
   hardware          = "shared"
   kube_version      = "4.3.2_openshift"
   public_vlan_id    = "<public_vlan_ID>"
-  private_vlan_id   = "<private_vlane_ID>"
+  private_vlan_id   = "<private_vlan_ID>"
   lifecycle {
     ignore_changes = [kube_version]
   }
