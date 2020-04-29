@@ -42,6 +42,8 @@ After Terraform is processing the script, you will receive a chain of emails tha
 
 ### Teardown
 
+Run the following command (which is expected to complete in around 4 minutes). When Terraform starts processing the script, it will prompt if the action should be applied.  Read carefully and if so, type ```yes```.
+
 ```bash
 #!/bin/bash
 cd platforms/ibm/cluster;
