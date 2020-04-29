@@ -85,10 +85,43 @@ createIbmTerraformSettingsIfNeeded(){
         local _tfvars_template_full_path="$_current_dir/$_tfvars_template_filename";
         cp "$_tfvars_template_full_path" "$_tfvars_full_path";
         local _ibmcloud_settings_filename="IbmCloudApi.json";
-        local _api_key=`jq -r '.id' $_current_dir/../$_ibmcloud_settings_filename`;
+        local _api_key=`jq -r '.apikey' $_current_dir/../$_ibmcloud_settings_filename`;
         local _tfvars_contents=$(<$_tfvars_full_path);
         local _api_key_placeholder="<ibmcloud_api_key>";
         local _tfvars_contents=${_tfvars_contents/$_api_key_placeholder/$_api_key};
+        local _iaas_classic_user_placeholder="<classic_infrastructure_username>";
+        local _iaas_classic_apikey_placeholder="<classic_infrastructure_apikey>";
         echo "$_tfvars_contents" > $_tfvars_full_path;
+    fi
+}
+
+initializeOpenshiftTfVlansIfNeeded(){
+    local _current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+    local _cluster_subpath="../cluster";
+    local _openshift_tf_filename="openshift.tf";
+    local _openshift_tf_full_path="$_current_dir/$_cluster_subpath/$_openshift_tf_filename";
+    local _public_vlan_placeholder="<public_vlan_ID>";
+    local _private_vlan_placeholder="<private_vlan_ID>";
+    local _openshift_tf_contents=$(<$_openshift_tf_full_path);
+    local _start_tag='"cluster" {';
+    local _end_tag="\n}";
+    local _cluster_resource_block=${_openshift_tf_contents#*${_start_tag}};
+    _cluster_resource_block=${_cluster_resource_block%%${_end_tag}*};
+    local _datacenter=${_cluster_resource_block#*${_start_tag}};
+    _datacenter=`echo "$_datacenter" | pcregrep -Mi -o1 "datacenter\h*=\h*\"(.*)\"\n"`;
+    setVlanValueInOpenshiftTfFileIfNeeded "$_openshift_tf_full_path" "$_datacenter" "public" "$_public_vlan_placeholder";
+    setVlanValueInOpenshiftTfFileIfNeeded "$_openshift_tf_full_path" "$_datacenter" "private" "$_private_vlan_placeholder";
+}
+
+setVlanValueInOpenshiftTfFileIfNeeded(){
+    local _settings_tf_full_path=$1;
+    local _zone=$2;
+    local _type=$3;
+    local _vlan_placeholder=$4;
+    if grep -q "$_vlan_placeholder" "$_settings_tf_full_path"; then
+        local _settings_tf_contents=$(<$_settings_tf_full_path);
+        local _vlan=`ibmcloud oc vlans --zone "$_zone" --json | jq -r -c ".[] | select( .type == \"$_type\" ) | .id"`;
+        local _settings_tf_contents=${_settings_tf_contents/$_vlan_placeholder/$_vlan};
+        echo "$_settings_tf_contents" > $_settings_tf_full_path;
     fi
 }
