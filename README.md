@@ -25,3 +25,27 @@ For example, to use IBM, run
 cd platforms/ibm;
 ./prerequisites.sh;
 ```
+
+## Deploy Infrastructure via Terraform
+
+### Setup
+
+Run the following command (which is expected to complete in around 20 minutes). When Terraform starts processing the script, it will prompt if the action should be applied.  Read carefully and if so, type ```yes```.
+
+```bash
+#!/bin/bash
+cd platforms/ibm/cluster;
+terraform apply;
+```
+
+After Terraform is processing the script, you will receive a chain of emails that your IBM Cloud Order # 12345678 has been approved.
+
+### Teardown
+
+Run the following command (which is expected to complete in around 4 minutes). When Terraform starts processing the script, it will prompt if the action should be applied.  Read carefully and if so, type ```yes```.
+
+```bash
+#!/bin/bash
+cd platforms/ibm/cluster;
+terraform destroy;
+```

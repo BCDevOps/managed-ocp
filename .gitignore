@@ -40,4 +40,6 @@ Thumbs.db
 /platforms/ibm/IbmCloudApi.json
 /platforms/ibm/cluster/.*
 /platforms/ibm/cluster/*.tfvars
+/platforms/ibm/cluster/*.tfstate
+/platforms/ibm/cluster/*.tfstate.backup
 /platforms/ibm/cluster/kubectl
