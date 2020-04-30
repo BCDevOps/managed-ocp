@@ -109,19 +109,25 @@ initializeOpenshiftTfVlansIfNeeded(){
     _cluster_resource_block=${_cluster_resource_block%%${_end_tag}*};
     local _datacenter=${_cluster_resource_block#*${_start_tag}};
     _datacenter=`echo "$_datacenter" | pcregrep -Mi -o1 "datacenter\h*=\h*\"(.*)\"\n"`;
-    setVlanValueInOpenshiftTfFileIfNeeded "$_openshift_tf_full_path" "$_datacenter" "public" "$_public_vlan_placeholder";
-    setVlanValueInOpenshiftTfFileIfNeeded "$_openshift_tf_full_path" "$_datacenter" "private" "$_private_vlan_placeholder";
+    setVlanValueInOpenshiftTfFileIfNeeded "$_openshift_tf_full_path" "$_cluster_resource_block" "$_datacenter" "public" "public_vlan_id" "<public_vlan_ID>";
+    setVlanValueInOpenshiftTfFileIfNeeded "$_openshift_tf_full_path" "$_cluster_resource_block" "$_datacenter" "private" "private_vlan_id" "<private_vlan_ID>";
 }
 
 setVlanValueInOpenshiftTfFileIfNeeded(){
     local _settings_tf_full_path=$1;
-    local _zone=$2;
-    local _type=$3;
-    local _vlan_placeholder=$4;
+    local _cluster_resource_block=$2;
+    local _zone=$3;
+    local _type=$4;
+    local _vlan_field_name=$5;
+    local _vlan_placeholder=$6;
+    local _vlan_replace_target="$_vlan_placeholder";
+    local _settings_tf_contents=$(<$_settings_tf_full_path);
+    local _vlan=`ibmcloud oc vlans --zone "$_zone" --json | jq -r -c ".[] | select( .type == \"$_type\" ) | .id"`;
     if grep -q "$_vlan_placeholder" "$_settings_tf_full_path"; then
-        local _settings_tf_contents=$(<$_settings_tf_full_path);
-        local _vlan=`ibmcloud oc vlans --zone "$_zone" --json | jq -r -c ".[] | select( .type == \"$_type\" ) | .id"`;
-        local _settings_tf_contents=${_settings_tf_contents/$_vlan_placeholder/$_vlan};
-        echo "$_settings_tf_contents" > $_settings_tf_full_path;
+        _vlan_replace_target="$_vlan_placeholder";
+    else # looks like the vlans change, so we need to double check them every time
+        _vlan_replace_target=`echo "$_cluster_resource_block" | pcregrep -Mi -o1 "$_vlan_field_name\h*=\h*\"(.*)\"\n"`;
     fi
+    _settings_tf_contents=${_settings_tf_contents/$_vlan_replace_target/$_vlan};
+    echo "$_settings_tf_contents" > $_settings_tf_full_path;
 }
