@@ -3,6 +3,9 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
 source "$DIR/../../../lib/setup_helper.sh";
 
 IBM_API_KEY_NAME="IbmCloudApi";
+IBM_API_KEY_FILENAME="$IBM_API_KEY_NAME.json";
+IBM_ACCOUNT_UNSET_VAL="UNSET";
+IBM_ACCOUNT_FOLDER_FULL_PATH="$IBM_ACCOUNT_UNSET_VAL";
 
 installIbmTerraformPluginsIfNeeded(){
     # install IBM specific terraform plugins
@@ -64,42 +67,74 @@ installIbmCloudCliIfNeeded(){
     fi
 }
 
+ensureLoggedIn(){
+    echo "You are about to log in to IBM Cloud.";
+    echo "If you do not have an IBM Cloud account yet, you will need to acquire one for the next step.";
+    echo "[CTRL]-[C] to exit."
+    echo "As a BC Gov cluster admin, you will be given 2 account selection options; your personal account (dev) and the BC Gov account (prod).";
+    echo "Whichever account you choose to use, your terraform configs will be different due to different cloud resources being assigned to each account, so make sure you choose carefully which account you use."
+    ibmcloud login;
+}
+
+ensureAccountFolder(){
+    if [[ "$IBM_ACCOUNT_FOLDER_FULL_PATH" == "$IBM_ACCOUNT_UNSET_VAL" ]]; then
+        local _current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+        local _account_id=`ibmcloud account show --output json | jq -r .account_id`;
+        local _account_folder_name=`echo -n "$_account_id" | openssl whirlpool | cut -c-32`;
+        local _account_subpath="../account";
+        IBM_ACCOUNT_FOLDER_FULL_PATH="$_current_dir/$_account_subpath/$_account_folder_name";
+    fi
+}
+
+createIbmAccountStructureIfNeeded(){
+    # IBM Cloud provisions by account, so depending on which account a user is 
+    # logged into, the available infrastructure will be different, requiring 
+    # different Terraform scripts.  We need to separate those by account.
+    local _current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+    ensureAccountFolder;
+    if [[ ! -e "$IBM_ACCOUNT_FOLDER_FULL_PATH" ]]; then
+        mkdir -p "$IBM_ACCOUNT_FOLDER_FULL_PATH/cluster";
+        cp "$_current_dir/openshift.tf.template" "$IBM_ACCOUNT_FOLDER_FULL_PATH/cluster/openshift.tf";
+    fi
+}
+
 createIbmApiKeyIfNeeded(){
-    if [[ ! -e "$IBM_API_KEY_NAME.json" ]]; then
-        echo "\\nYou are about to log in to IBM Cloud.\\nIf you do not have an IBM Cloud account yet, you will need to acquire one for the next step.\\n[CTRL]-[C] to exit."
-        ibmcloud login;
-        ibmcloud iam api-key-create IbmCloudApi -d "API key for passwordless application access" --file IbmCloudApi.json
+    ensureAccountFolder;
+    local _ibmcloud_settings_filename="$IBM_API_KEY_FILENAME";
+    local _ibmcloud_settings_full_path="$IBM_ACCOUNT_FOLDER_FULL_PATH/$_ibmcloud_settings_filename";
+
+    if [[ ! -e "$_ibmcloud_settings_full_path" ]]; then
+        ibmcloud iam api-key-create IbmCloudApi -d "API key for passwordless application access" --file $_ibmcloud_settings_full_path;
     fi
 }
 
 createIbmTerraformSettingsIfNeeded(){
     local _current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
-    local _cluster_subpath="../cluster";
+    ensureAccountFolder;
+    local _cluster_fullpath="$IBM_ACCOUNT_FOLDER_FULL_PATH/cluster";
     local _tfvars_filename="ibm.auto.tfvars";
-    local _tfvars_full_path="$_current_dir/$_cluster_subpath/$_tfvars_filename";
+    local _tfvars_full_path="$_cluster_fullpath/$_tfvars_filename";
 
     if [[ ! -e "$_tfvars_full_path" ]]; then
-        cd $_current_dir/$_cluster_subpath;
+        cd $_cluster_fullpath;
         terraform init;
         local _tfvars_template_filename="ibm.auto.tfvars.template";
         local _tfvars_template_full_path="$_current_dir/$_tfvars_template_filename";
         cp "$_tfvars_template_full_path" "$_tfvars_full_path";
-        local _ibmcloud_settings_filename="IbmCloudApi.json";
-        local _api_key=`jq -r '.apikey' $_current_dir/../$_ibmcloud_settings_filename`;
+        local _api_key=`jq -r '.apikey' $IBM_ACCOUNT_FOLDER_FULL_PATH/$IBM_API_KEY_FILENAME`;
         local _tfvars_contents=$(<$_tfvars_full_path);
         local _api_key_placeholder="<ibmcloud_api_key>";
         local _tfvars_contents=${_tfvars_contents/$_api_key_placeholder/$_api_key};
-        local _iaas_classic_user_placeholder="<classic_infrastructure_username>";
-        local _iaas_classic_apikey_placeholder="<classic_infrastructure_apikey>";
         echo "$_tfvars_contents" > $_tfvars_full_path;
     fi
 }
 
 initializeOpenshiftTfVlansIfNeeded(){
     local _current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
-    local _cluster_subpath="../cluster";
+    ensureAccountFolder;
+    local _cluster_fullpath="$IBM_ACCOUNT_FOLDER_FULL_PATH/cluster";
     local _openshift_tf_filename="openshift.tf";
-    local _openshift_tf_full_path="$_current_dir/$_cluster_subpath/$_openshift_tf_filename";
+    local _openshift_tf_full_path="$_cluster_fullpath/$_openshift_tf_filename";
     local _public_vlan_placeholder="<public_vlan_ID>";
     local _private_vlan_placeholder="<private_vlan_ID>";
     local _openshift_tf_contents=$(<$_openshift_tf_full_path);
@@ -128,4 +163,15 @@ setVlanValueInOpenshiftTfFileIfNeeded(){
     fi
     _settings_tf_contents=${_settings_tf_contents/$_vlan_replace_target/$_vlan};
     echo "$_settings_tf_contents" > $_settings_tf_full_path;
+}
+
+handleOrderDependentIbmCloudTerraformSetups(){
+    installIbmCloudCliIfNeeded;
+    installTerraformIfNeeded;
+    installIbmTerraformPluginsIfNeeded;
+    ensureLoggedIn;
+    createIbmAccountStructureIfNeeded;
+    createIbmApiKeyIfNeeded;
+    createIbmTerraformSettingsIfNeeded;
+    initializeOpenshiftTfVlansIfNeeded;
 }
