@@ -2,6 +2,15 @@
 
 BC Gov OpenShift Container Platform deployment automation
 
+A tool for BC Gov hybrid-cloud cluster admins that allows fast reliable deployments of cloud vendor managed OpenShift clusters that integrate with the BC Gov multi-vendor hybrid cloud.
+
+Meant to be as simple as running 2 commands:
+
+```bash
+./prerequisites.sh;
+terraform apply;
+```
+
 ## Getting Started
 
 We are going to be using a set of tools to manage OpenShift cluster deployments.
@@ -13,8 +22,9 @@ These tools are:
 * vscode
 * asdf version manager
 * platform specific CLIs and plugins
+* a working cloud resources account at each vendor
 
-### Prerequisites
+### Automatic Installation of Prerequisites
 
 For each specific platform, run the installer to get started.
 
@@ -34,7 +44,7 @@ Run the following command (which is expected to complete in around 20 minutes). 
 
 ```bash
 #!/bin/bash
-cd platforms/ibm/cluster;
+cd platforms/ibm/accounts/<target-account-hash>/cluster;
 terraform apply;
 ```
 
@@ -46,6 +56,6 @@ Run the following command (which is expected to complete in around 4 minutes). W
 
 ```bash
 #!/bin/bash
-cd platforms/ibm/cluster;
+cd platforms/ibm/accounts/<target-account-hash>/cluster;
 terraform destroy;
 ```

@@ -5,12 +5,7 @@ source "$CALLER_DIR/../../lib/setup_helper.sh";
 source "$CALLER_DIR/lib/ibm_cloud_components.sh";
 
 checkDependencies;
-installIbmCloudCliIfNeeded;
-installTerraformIfNeeded;
-installIbmTerraformPluginsIfNeeded;
-createIbmApiKeyIfNeeded;
-createIbmTerraformSettingsIfNeeded;
-initializeOpenshiftTfVlansIfNeeded;
+handleOrderDependentIbmCloudTerraformSetups;
 
 source "${PROFILE_FILE}";
 source "${RC_FILE}";
