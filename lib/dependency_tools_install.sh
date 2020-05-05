@@ -96,5 +96,6 @@ else
 fi
 
 asdf plugin-add terraform https://github.com/Banno/asdf-hashicorp.git;
+asdf plugin-add python;
 
 echo "Finished installing developer prerequisites";

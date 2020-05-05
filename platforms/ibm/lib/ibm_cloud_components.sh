@@ -165,6 +165,17 @@ setVlanValueInOpenshiftTfFileIfNeeded(){
     echo "$_settings_tf_contents" > $_settings_tf_full_path;
 }
 
+installAnsibleIfNeeded(){
+    if [[ ! -e "get-pip.py" ]]; then
+        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py;
+        python get-pip.py --user;
+        python -m virtualenv ansible;
+        source ansible/bin/activate;
+        pip install ansible;
+    fi
+}
+
+
 handleOrderDependentIbmCloudTerraformSetups(){
     installIbmCloudCliIfNeeded;
     installTerraformIfNeeded;
@@ -174,4 +185,5 @@ handleOrderDependentIbmCloudTerraformSetups(){
     createIbmApiKeyIfNeeded;
     createIbmTerraformSettingsIfNeeded;
     initializeOpenshiftTfVlansIfNeeded;
+    installAnsibleIfNeeded;
 }
