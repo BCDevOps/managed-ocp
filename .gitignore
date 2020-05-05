@@ -43,3 +43,4 @@ Thumbs.db
 **/*.tfstate
 **/*.tfstate.backup
 **/kubectl
+**/get-pip.py
