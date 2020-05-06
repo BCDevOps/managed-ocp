@@ -20,10 +20,10 @@ asdfProfileWriterNonBrew(){
         touch "$_profile_file";
     fi
     if ! grep "/asdf.sh" "$_profile_file"; then
-        echo -e '\\n. $HOME/.asdf/asdf.sh' >> "$_profile_file";
+        echo -e "\\n. $HOME/.asdf/asdf.sh" >> "$_profile_file";
     fi
     if ! grep "/asdf.bash" "$_profile_file"; then
-        echo -e '\\n. $HOME/.asdf/completions/asdf.bash' >> "$_profile_file";
+        echo -e "\\n. $HOME/.asdf/completions/asdf.bash" >> "$_profile_file";
     fi
     source "$_profile_file";
 }
@@ -35,6 +35,9 @@ asdfProfileSettings(){
         asdfProfileWriterBrew "$_profile_file";
     else
         asdfProfileWriterNonBrew "$_profile_file";
+    fi
+    if ! grep "/.asdf/shims" "$_profile_file"; then
+        echo '[[ ":$PATH:" != *"$HOME/.asdf/shims:"* ]] && export PATH="$HOME/.asdf/shims:$PATH"' >> "$_profile_file";
     fi
     local _profile_file_after=$(date -r "$_profile_file" "+%m-%d-%Y %H:%M:%S");
     if [[ "$_profile_file_before" != "$_profile_file_after" ]]; then source "$_profile_file"; fi

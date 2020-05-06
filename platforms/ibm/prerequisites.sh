@@ -9,3 +9,6 @@ handleOrderDependentIbmCloudTerraformSetups;
 
 source "${PROFILE_FILE}";
 source "${RC_FILE}";
+
+echo "This directory tree uses the following package version set:";
+asdf current;

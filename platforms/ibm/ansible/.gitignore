@@ -1,0 +1,8 @@
+# Action Plugin compiled artifact
+*.pyc
+# VSCode files
+.vscode/
+# Ansible Vault
+.vaultpass
+# Trident temp folder
+playbooks/tmp/
