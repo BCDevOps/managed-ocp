@@ -126,6 +126,7 @@ createIbmTerraformSettingsIfNeeded(){
         local _api_key_placeholder="<ibmcloud_api_key>";
         local _tfvars_contents=${_tfvars_contents/$_api_key_placeholder/$_api_key};
         echo "$_tfvars_contents" > $_tfvars_full_path;
+        cd $_current_dir;
     fi
 }
 
@@ -165,14 +166,36 @@ setVlanValueInOpenshiftTfFileIfNeeded(){
     echo "$_settings_tf_contents" > $_settings_tf_full_path;
 }
 
+installPythonIfNeeded(){
+    local _current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+    cd "$_current_dir/..";
+    local _python_tag="python ";
+    local _python_target_version=$(findTagValueInFile "$_python_tag" ".tool-versions");
+
+    if [[ ! -z "$_python_target_version" ]]; then
+        local _python_current_version=$(findTagValueInCommandOutput "Python" "python -V");
+        if [[ "$_python_current_version" != "$_python_target_version" ]]; then
+            echo "handling python version '${_python_target_version}'";
+            source "${PROFILE_FILE}";
+            asdf install python $_python_target_version;
+            asdf reshim python;
+        fi
+    fi
+    cd "$_current_dir";
+}
+
 installAnsibleIfNeeded(){
+    local _current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+    cd "$_current_dir/..";
     if [[ ! -e "get-pip.py" ]]; then
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py;
         python get-pip.py --user;
         python -m virtualenv ansible;
         source ansible/bin/activate;
         pip install ansible;
+        pip install openshift;
     fi
+    cd "$_current_dir";
 }
 
 
@@ -185,5 +208,6 @@ handleOrderDependentIbmCloudTerraformSetups(){
     createIbmApiKeyIfNeeded;
     createIbmTerraformSettingsIfNeeded;
     initializeOpenshiftTfVlansIfNeeded;
+    installPythonIfNeeded;
     installAnsibleIfNeeded;
 }
