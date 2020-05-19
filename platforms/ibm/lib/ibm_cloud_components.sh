@@ -158,7 +158,7 @@ setVlanValueInOpenshiftTfFileIfNeeded(){
     local _vlan_placeholder=$6;
     local _vlan_replace_target="$_vlan_placeholder";
     local _settings_tf_contents=$(<$_settings_tf_full_path);
-    local _vlan=`ibmcloud oc vlans ls --zone "$_zone" --json | jq -r -c ".[] | select( .type == \"$_type\" ) | .id"`;
+    local _vlan=`ibmcloud oc vlans -zone "$_zone" --json | jq -r -c ".[] | select( .type == \"$_type\" ) | .id"`;
     if ! grep -q "$_vlan_placeholder" "$_settings_tf_full_path"; then
         _vlan_replace_target=`echo "$_cluster_resource_block" | pcregrep -Mi -o1 "$_vlan_field_name\h*=\h*\"(.*)\"\n"`;
     fi
