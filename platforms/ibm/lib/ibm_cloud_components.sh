@@ -7,58 +7,6 @@ IBM_API_KEY_FILENAME="$IBM_API_KEY_NAME.json";
 IBM_ACCOUNT_UNSET_VAL="UNSET";
 IBM_ACCOUNT_FOLDER_FULL_PATH="$IBM_ACCOUNT_UNSET_VAL";
 
-installIbmTerraformPluginsIfNeeded(){
-    # install IBM specific terraform plugins
-    TERRAFORM_PLUGIN_DIR=$HOME/.terraform.d/plugins;
-    mkdir -p $TERRAFORM_PLUGIN_DIR;
-    TERRAFORM_INSTALLER=unset;
-
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # Mac OSX
-        TERRAFORM_INSTALLER=darwin_amd64.zip;
-    # Will be using the subsystem for now
-    elif [[ "$OSTYPE" == "cygwin"* || "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* ]]; then
-        # POSIX compatibility layer and Linux environment emulation for Windows
-        # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
-        TERRAFORM_INSTALLER=windows_amd64.zip;
-    elif [[ "$OSTYPE" == "bsd"* || "$OSTYPE" == "solaris"* ]]; then
-        # not supported
-        echo -e \\n"OS not supported. Supported OS:\\nMac OSX\\nDebian\\nFedora\\n"\\n;
-        exit 1;
-    else
-        IDLIKE="$(grep ID_LIKE /etc/os-release | awk -F '=' '{print $2}')";
-        if [[ "$IDLIKE" == *"debian"* ]]; then
-            # Debian base like Ubuntu
-            TERRAFORM_INSTALLER=linux_amd64.zip;
-        elif [[ "$IDLIKE" == *"fedora"* ]]; then
-            # Fedora base like CentOS or RHEL
-            TERRAFORM_INSTALLER=linux_amd64.zip;
-        else
-            echo -e \\n"OS not detected. Supported OS:\\nMac OSX\\nDebian\\nFedora\\n"\\n;
-            exit 1;
-        fi
-    fi
-    rm -f $TERRAFORM_INSTALLER*;
-    TARGET_IBM_CLOUD_TF_PLUGIN_VERSION="1.4.0";
-    IBM_CLOUD_TF_ALREADY_INSTALLED=$(find $TERRAFORM_PLUGIN_DIR -maxdepth 1 -name "*$TARGET_IBM_CLOUD_TF_PLUGIN_VERSION*" -print);
-    if [[ -z "$IBM_CLOUD_TF_ALREADY_INSTALLED" ]]; then
-        wget https://github.com/IBM-Cloud/terraform-provider-ibm/releases/download/v$TARGET_IBM_CLOUD_TF_PLUGIN_VERSION/$TERRAFORM_INSTALLER;
-        echo "n" | unzip $TERRAFORM_INSTALLER -d $TERRAFORM_PLUGIN_DIR;
-        printf "\n";
-        rm -f ./$TERRAFORM_INSTALLER;
-
-        CURRENT_IBM_CLOUD_TF_PLUGIN_VERSION=$(findTagValueInCommandOutput "IBM Cloud Provider version" "$TERRAFORM_PLUGIN_DIR/terraform-provider-ibm_* 2>&1 >/dev/null" "true");
-        if [[ "$CURRENT_IBM_CLOUD_TF_PLUGIN_VERSION" != "$TARGET_IBM_CLOUD_TF_PLUGIN_VERSION" ]]; then
-            local _install_problem="Looks like the IBM Cloud Terraform Plugin didn't respond correctly after installing.";
-            if [[ "$OSTYPE" == "darwin"* ]]; then
-                echo -e \\n"$_install_problem\\nOn Mac OS Catalina and above, your first time installing will likely fail with a security warning.\\nGo to your Mac's System Preferences, Security & Privacy, General and allow terraform-provider-ibm*\\n"
-            else
-                echo -e \\n"$_install_problem\\n"
-            fi
-        fi
-    fi
-}
-
 installIbmCloudCliIfNeeded(){
     # install IBM specific openshift plugins
     IBM_CLOUD_CLI_VERSION=$(findTagValueInCommandOutput "ibmcloud version" "ibmcloud -v" "true");
@@ -108,6 +56,84 @@ createIbmApiKeyIfNeeded(){
     fi
 }
 
+installIbmTerraformPluginsIfNeeded(){
+    # install IBM specific terraform plugins
+    local _current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
+    ensureAccountFolder;
+    local _cluster_fullpath="$IBM_ACCOUNT_FOLDER_FULL_PATH/cluster";
+
+    local _terraform_installer=unset;
+    local _terraform_installer_file=unset;
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # Mac OSX
+        _terraform_installer=darwin_amd64;
+    # Will be using the subsystem for now
+    elif [[ "$OSTYPE" == "cygwin"* || "$OSTYPE" == "msys"* || "$OSTYPE" == "win"* ]]; then
+        # POSIX compatibility layer and Linux environment emulation for Windows
+        # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+        _terraform_installer=windows_amd64;
+    elif [[ "$OSTYPE" == "bsd"* || "$OSTYPE" == "solaris"* ]]; then
+        # not supported
+        echo -e \\n"OS not supported. Supported OS:\\nMac OSX\\nDebian\\nFedora\\n"\\n;
+        exit 1;
+    else
+        local _idlike="$(grep ID_LIKE /etc/os-release | awk -F '=' '{print $2}')";
+        if [[ "$_idlike" == *"debian"* ]]; then
+            # Debian base like Ubuntu
+            _terraform_installer=linux_amd64;
+        elif [[ "$_idlike" == *"fedora"* ]]; then
+            # Fedora base like CentOS or RHEL
+            _terraform_installer=linux_amd64;
+        else
+            echo -e \\n"OS not detected. Supported OS:\\nMac OSX\\nDebian\\nFedora\\n"\\n;
+            exit 1;
+        fi
+    fi
+    local _target_ibm_cloud_tf_plugin_version="1.5.3";
+
+    local _terraform_plugin_dir=$_cluster_fullpath/.terraform/plugins/$_terraform_installer;
+    mkdir -p $_terraform_plugin_dir;
+    _terraform_installer_file="$_terraform_installer.zip";
+    ensureTargetIbmTerraformPlugin "$OSTYPE" "$_terraform_plugin_dir" "$_target_ibm_cloud_tf_plugin_version" "$_terraform_installer_file" "check";
+    # additionally to the local installation of the Terraform IBM plugin above
+    # we are going to always ensure that the plugin for linux_amd64 is always installed
+    # so that the plugin will be present for usage in Terraform Cloud.
+    local _terraform_installer_for_tf_cloud=linux_amd64;
+    local _terraform_plugin_dir_for_tf_cloud=$_cluster_fullpath/.terraform/plugins/$_terraform_installer_for_tf_cloud;
+    mkdir -p $_terraform_plugin_dir_for_tf_cloud;
+    local _terraform_installer_for_tf_cloud_file="$_terraform_installer_for_tf_cloud.zip";
+    ensureTargetIbmTerraformPlugin "$OSTYPE" "$_terraform_plugin_dir_for_tf_cloud" "$_target_ibm_cloud_tf_plugin_version" "$_terraform_installer_for_tf_cloud_file" "skip";
+}
+
+ensureTargetIbmTerraformPlugin(){
+    local _ostype=$1;
+    local _terraform_plugin_dir=$2;
+    local _target_ibm_cloud_tf_plugin_versions=$3;
+    local _terraform_installer=$4;
+    local _skip_check=$5; # "skip" to skip the check
+    # install IBM specific terraform plugins
+    rm -f $_terraform_installer*;
+    local _ibm_cloud_tf_already_installed=$(find $_terraform_plugin_dir -maxdepth 1 -name "*$_target_ibm_cloud_tf_plugin_versions*" -print);
+    if [[ -z "$_ibm_cloud_tf_already_installed" ]]; then
+        wget https://github.com/IBM-Cloud/terraform-provider-ibm/releases/download/v$_target_ibm_cloud_tf_plugin_versions/$_terraform_installer;
+        echo "n" | unzip $_terraform_installer -d $_terraform_plugin_dir;
+        printf "\n";
+        rm -f ./$_terraform_installer;
+        if [[ "skip" != "$_skip_check" ]]; then
+            local _current_ibm_cloud_tf_plugin_versions=$(findTagValueInCommandOutput "IBM Cloud Provider version" "$_terraform_plugin_dir/terraform-provider-ibm_* 2>&1 >/dev/null" "true");
+            if [[ "$_current_ibm_cloud_tf_plugin_versions" != "$_target_ibm_cloud_tf_plugin_versions" ]]; then
+                local _install_problem="Looks like the IBM Cloud Terraform Plugin didn't respond correctly after installing.";
+                if [[ "$_ostype" == "darwin"* ]]; then
+                    echo -e \\n"$_install_problem\\nOn Mac OS Catalina and above, your first time installing will likely fail with a security warning.\\nGo to your Mac's System Preferences, Security & Privacy, General and allow terraform-provider-ibm*\\n"
+                else
+                    echo -e \\n"$_install_problem\\n"
+                fi
+            fi
+        fi
+    fi
+}
+
 createIbmTerraformSettingsIfNeeded(){
     local _current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd );
     ensureAccountFolder;
@@ -115,19 +141,17 @@ createIbmTerraformSettingsIfNeeded(){
     local _tfvars_filename="ibm.auto.tfvars";
     local _tfvars_full_path="$_cluster_fullpath/$_tfvars_filename";
 
-    if [[ ! -e "$_tfvars_full_path" ]]; then
-        cd $_cluster_fullpath;
-        terraform init;
-        local _tfvars_template_filename="ibm.auto.tfvars.template";
-        local _tfvars_template_full_path="$_current_dir/$_tfvars_template_filename";
-        cp "$_tfvars_template_full_path" "$_tfvars_full_path";
-        local _api_key=`jq -r '.apikey' $IBM_ACCOUNT_FOLDER_FULL_PATH/$IBM_API_KEY_FILENAME`;
-        local _tfvars_contents=$(<$_tfvars_full_path);
-        local _api_key_placeholder="<ibmcloud_api_key>";
-        local _tfvars_contents=${_tfvars_contents/$_api_key_placeholder/$_api_key};
-        echo "$_tfvars_contents" > $_tfvars_full_path;
-        cd $_current_dir;
-    fi
+    cd $_cluster_fullpath;
+    terraform init;
+    local _tfvars_template_filename="ibm.auto.tfvars.template";
+    local _tfvars_template_full_path="$_current_dir/$_tfvars_template_filename";
+    cp "$_tfvars_template_full_path" "$_tfvars_full_path";
+    local _api_key=`jq -r '.apikey' $IBM_ACCOUNT_FOLDER_FULL_PATH/$IBM_API_KEY_FILENAME`;
+    local _tfvars_contents=$(<$_tfvars_full_path);
+    local _api_key_placeholder="<ibmcloud_api_key>";
+    local _tfvars_contents=${_tfvars_contents/$_api_key_placeholder/$_api_key};
+    echo "$_tfvars_contents" > $_tfvars_full_path;
+    cd $_current_dir;
 }
 
 initializeOpenshiftTfVlansIfNeeded(){
@@ -202,10 +226,10 @@ installAnsibleIfNeeded(){
 handleOrderDependentIbmCloudTerraformSetups(){
     installIbmCloudCliIfNeeded;
     installTerraformIfNeeded;
-    installIbmTerraformPluginsIfNeeded;
     ensureLoggedIn;
     createIbmAccountStructureIfNeeded;
     createIbmApiKeyIfNeeded;
+    installIbmTerraformPluginsIfNeeded;
     createIbmTerraformSettingsIfNeeded;
     initializeOpenshiftTfVlansIfNeeded;
     installPythonIfNeeded;
