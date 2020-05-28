@@ -38,7 +38,8 @@ Thumbs.db
 
 # Settings Files
 **/IbmCloudApi.json
-**/cluster/.*
+**/cluster/.terraform/plugins/darwin_amd*
+**/cluster/.terraform/plugins/windows_amd*
 **/*.tfvars
 **/*.tfstate
 **/*.tfstate.backup
