@@ -120,6 +120,8 @@ ensureTargetIbmTerraformPlugin(){
         echo "n" | unzip $_terraform_installer -d $_terraform_plugin_dir;
         printf "\n";
         rm -f ./$_terraform_installer;
+        rm -f $_terraform_plugin_dir/*.sig;
+        ls $_terraform_plugin_dir | grep -v '\.pem$' | chmod +rx;
         if [[ "skip" != "$_skip_check" ]]; then
             local _current_ibm_cloud_tf_plugin_versions=$(findTagValueInCommandOutput "IBM Cloud Provider version" "$_terraform_plugin_dir/terraform-provider-ibm_* 2>&1 >/dev/null" "true");
             if [[ "$_current_ibm_cloud_tf_plugin_versions" != "$_target_ibm_cloud_tf_plugin_versions" ]]; then
