@@ -36,3 +36,8 @@
 *.[pP][pP][tT][xX] binary
 *.[mM][sS][gG] binary
 *.[oO][fF][tT] binary
+
+# Binary terraform files
+# =============
+[tT][eE][rR][rR][aA][fF][oO][rR][mM]-[pP][rR][oO][vV][iI][dD][eE][rR]-* binary
+*.[pP][eE][mM] binary
