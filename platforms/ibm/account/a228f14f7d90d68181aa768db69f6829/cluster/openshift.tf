@@ -19,4 +19,3 @@ resource "ibm_container_cluster" "cluster" {
     ignore_changes = [kube_version]
   }
 }
- 
