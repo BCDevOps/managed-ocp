@@ -100,7 +100,7 @@ installIbmTerraformPluginsIfNeeded(){
     # we are going to always ensure that the plugin for linux_amd64 is always installed
     # so that the plugin will be present for usage in Terraform Cloud.
     local _terraform_installer_for_tf_cloud=linux_amd64;
-    local _terraform_plugin_dir_for_tf_cloud=$_cluster_fullpath/terraform.d/plugins/$_terraform_installer_for_tf_cloud;
+    local _terraform_plugin_dir_for_tf_cloud=$_cluster_fullpath/.terraform/plugins/$_terraform_installer_for_tf_cloud;
     mkdir -p $_terraform_plugin_dir_for_tf_cloud;
     local _terraform_installer_for_tf_cloud_file="$_terraform_installer_for_tf_cloud.zip";
     ensureTargetIbmTerraformPlugin "$OSTYPE" "$_terraform_plugin_dir_for_tf_cloud" "$_target_ibm_cloud_tf_plugin_version" "$_terraform_installer_for_tf_cloud_file" "skip";
