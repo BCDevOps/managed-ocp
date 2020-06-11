@@ -78,7 +78,7 @@ installIbmTerraformPluginsIfNeeded(){
         echo -e \\n"OS not supported. Supported OS:\\nMac OSX\\nDebian\\nFedora\\n"\\n;
         exit 1;
     else
-        local _idlike="$(grep ID_LIKE /etc/os-release | awk -F '=' '{print $2}')";
+        local _idlike="$(grep 'ID_LIKE=\|ID=' /etc/os-release | awk -F '=' '{print $2}')";
         if [[ "$_idlike" == *"debian"* ]]; then
             # Debian base like Ubuntu
             _terraform_installer=linux_amd64;

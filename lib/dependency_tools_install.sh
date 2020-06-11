@@ -16,7 +16,7 @@ elif [[ "$OSTYPE" == "bsd"* || "$OSTYPE" == "solaris"* ]]; then
     echo -e \\n"OS not supported. Supported OS:\\nMac OSX\\nDebian\\nFedora\\n"\\n;
     exit 1;
 else
-    IDLIKE="$(grep ID_LIKE /etc/os-release | awk -F '=' '{print $2}')";
+    IDLIKE="$(grep 'ID_LIKE=\|ID=' /etc/os-release | awk -F '=' '{print $2}')";
     if [[ "$IDLIKE" == *"debian"* ]]; then
         # Debian base like Ubuntu
         PACKAGE_MANAGER="apt";
