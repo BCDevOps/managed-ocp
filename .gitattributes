@@ -41,3 +41,9 @@
 # =============
 [tT][eE][rR][rR][aA][fF][oO][rR][mM]-[pP][rR][oO][vV][iI][dD][eE][rR]-* binary
 *.[pP][eE][mM] binary
+**/plugins/linux_amd64/**
+
+# Exclude from export
+# =============
+.gitattributes  export-ignore
+.gitignore      export-ignore
