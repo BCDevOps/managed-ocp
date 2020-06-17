@@ -20,6 +20,9 @@ jobs:
       - name: Initialize
         run: terraform init
 
+      - id: Validate
+        run: terraform validate
+
       - id: Plan
         run: terraform plan -no-color
 
