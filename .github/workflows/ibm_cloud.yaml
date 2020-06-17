@@ -23,6 +23,9 @@ jobs:
       - id: Validate
         run: terraform validate
 
+      - id: cd
+        run: cd ./platforms/ibm/account/a228f14f7d90d68181aa768db69f6829/cluster
+
       - id: pwd
         run: pwd
 
