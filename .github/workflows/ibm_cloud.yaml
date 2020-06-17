@@ -23,6 +23,12 @@ jobs:
       - id: Validate
         run: terraform validate
 
+      - id: pwd
+        run: pwd
+
+      - id: ls
+        run: ls -laR
+
       - id: Plan
         run: terraform plan -no-color
 
