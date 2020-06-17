@@ -16,12 +16,6 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_TOKEN }}
-      
-      - name: Initialize
-        run: terraform init
-
-      - id: Validate
-        run: terraform validate
 
       - id: Exploration
         run: |
