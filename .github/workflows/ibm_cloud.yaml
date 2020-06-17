@@ -23,17 +23,14 @@ jobs:
       - id: Validate
         run: terraform validate
 
-      - id: cd
-        run: cd ./platforms/ibm/account/a228f14f7d90d68181aa768db69f6829/cluster
-
-      - id: pwd
-        run: pwd
-
-      - id: ls
-        run: ls -laR
-
-      - id: Plan
-        run: terraform plan -no-color
+      - id: Exploration
+        run: |
+          cd ./platforms/ibm/account/a228f14f7d90d68181aa768db69f6829/cluster
+          pwd
+          ls -laR
+          terraform init
+          terraform validate
+          terraform plan -no-color
 
       - run: echo ${{ steps.plan.outputs.stdout }}
       - run: echo ${{ steps.plan.outputs.stderr }}
