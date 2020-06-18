@@ -17,10 +17,10 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_TOKEN }}
 
-      - id: Initialize
-        run: |
-          cd ./platforms/ibm/account/a228f14f7d90d68181aa768db69f6829/cluster
-          terraform init
+      # - id: Initialize
+      #   run: |
+      #     cd ./platforms/ibm/account/a228f14f7d90d68181aa768db69f6829/cluster
+      #     terraform init
 
       - id: Validate
         run: |
